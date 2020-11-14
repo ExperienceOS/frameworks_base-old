@@ -399,9 +399,7 @@ public class FODCircleView extends ImageView implements ConfigurationListener {
 
         if (event.getAction() == MotionEvent.ACTION_DOWN && newIsInside) {
             showCircle();
-            if (mIsRecognizingAnimEnabled) {
-                mHandler.post(() -> mFODAnimation.showFODanimation());
-            }
+            mHandler.post(() -> mFODAnimation.showFODanimation());
             return true;
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
             hideCircle();
@@ -556,8 +554,9 @@ public class FODCircleView extends ImageView implements ConfigurationListener {
     private void updateStyle() {
         mIsRecognizingAnimEnabled = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.FOD_RECOGNIZING_ANIMATION, 0) != 0;
+
         if (mFODAnimation != null) {
-            mFODAnimation.update();
+            mFODAnimation.update(mIsRecognizingAnimEnabled);
         }
     }
 
