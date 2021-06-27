@@ -68,27 +68,6 @@ import java.util.TimerTask;
 
 public class FODCircleView extends ImageView implements ConfigurationListener {
     private static final int FADE_ANIM_DURATION = 125;
-    private final String SCREEN_BRIGHTNESS = Settings.System.SCREEN_BRIGHTNESS;
-    private final int[][] BRIGHTNESS_ALPHA_ARRAY = {
-        new int[]{0, 255},
-        new int[]{1, 224},
-        new int[]{2, 213},
-        new int[]{3, 211},
-        new int[]{4, 208},
-        new int[]{5, 206},
-        new int[]{6, 203},
-        new int[]{8, 200},
-        new int[]{10, 196},
-        new int[]{15, 186},
-        new int[]{20, 176},
-        new int[]{30, 160},
-        new int[]{45, 139},
-        new int[]{70, 114},
-        new int[]{100, 90},
-        new int[]{150, 56},
-        new int[]{227, 14},
-        new int[]{255, 0}
-    };
     private static final String DOZE_INTENT = "com.android.systemui.doze.pulse";
 
     private final int mPositionX;
@@ -115,14 +94,6 @@ public class FODCircleView extends ImageView implements ConfigurationListener {
     private boolean mIsDreaming;
     private boolean mIsKeyguard;
     private boolean mTouchedOutside;
-
-    private boolean mDozeEnabled;
-    private boolean mFodGestureEnable;
-    private boolean mPressPending;
-    private boolean mScreenTurnedOn;
-
-    private PowerManager mPowerManager;
-    private PowerManager.WakeLock mWakeLock;
 
     private boolean mDozeEnabled;
     private boolean mFodGestureEnable;
@@ -291,12 +262,11 @@ public class FODCircleView extends ImageView implements ConfigurationListener {
 
         @Override
         public void onScreenTurnedOff() {
-             if (mFodGestureEnable){
+            mScreenTurnedOn = false;
+            if (mFodGestureEnable){
                 hideCircle();
-            }else {
-                if (!mHideFodCircleGoingToSleep) {
-                    hide();
-                }
+            }else{
+                hide();
             }
         }
 
@@ -358,42 +328,6 @@ public class FODCircleView extends ImageView implements ConfigurationListener {
 
     private boolean mCutoutMasked;
     private int mStatusbarHeight;
-    private class CustomSettingsObserver extends ContentObserver {
-        CustomSettingsObserver(Handler handler) {
-            super(handler);
-        }
-
-        void registerListener() {
-            mContext.getContentResolver().registerContentObserver(
-                    Settings.Secure.getUriFor(
-                    Settings.Secure.DOZE_ENABLED),
-                    false, this, UserHandle.USER_ALL);
-            mContext.getContentResolver().registerContentObserver(
-                    Settings.System.getUriFor(
-                    Settings.System.FOD_GESTURE),
-                    false, this, UserHandle.USER_ALL);
-            updateSettings();
-        }
-
-        @Override
-        public void onChange(boolean selfChange, Uri uri) {
-            super.onChange(selfChange, uri);
-            updateSettings();
-        }
-
-        public void updateSettings() {
-            mDozeEnabled = Settings.Secure.getIntForUser(
-                    mContext.getContentResolver(),
-                    Settings.Secure.DOZE_ENABLED, 1,
-                    UserHandle.USER_CURRENT) == 1;
-            mFodGestureEnable = Settings.System.getIntForUser(
-                    mContext.getContentResolver(),
-                    Settings.System.FOD_GESTURE, 1,
-                    UserHandle.USER_CURRENT) == 1;
-        }
-    }
-
-    private CustomSettingsObserver mCustomSettingsObserver;
     private FodGestureSettingsObserver mFodGestureSettingsObserver;
 
     public FODCircleView(Context context) {
@@ -421,10 +355,6 @@ public class FODCircleView extends ImageView implements ConfigurationListener {
         mPaintFingerprintBackground.setColor(mColorBackground);
         mPaintFingerprintBackground.setAntiAlias(true);
 
-        mTargetUsesInKernelDimming = res.getBoolean(com.android.internal.R.bool.config_targetUsesInKernelDimming);
-        
-        mHideFodCircleGoingToSleep = mContext.getResources().getBoolean(
-                com.android.internal.R.bool.config_hideFodCircleGoingToSleep);
         mPowerManager = context.getSystemService(PowerManager.class);
         mWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                  FODCircleView.class.getSimpleName());
@@ -478,25 +408,6 @@ public class FODCircleView extends ImageView implements ConfigurationListener {
         mUpdateMonitor.registerCallback(mMonitorCallback);
 
         mFODAnimation = new FODAnimation(context, mPositionX, mPositionY);
-
-        if (context.getResources().getBoolean(
-            com.android.internal.R.bool.config_supportsScreenOffInDisplayFingerprint)){
-            mFodGestureSettingsObserver = new FodGestureSettingsObserver(context, mHandler);
-            mFodGestureSettingsObserver.registerListener();
-        }
-
-        updateCutoutFlags();
-        Dependency.get(ConfigurationController.class).addCallback(this);
-    }
-
-    private int interpolate(int i, int i2, int i3, int i4, int i5) {
-        int i6 = i5 - i4;
-        int i7 = i - i2;
-        int i8 = ((i6 * 2) * i7) / (i3 - i2);
-        int i9 = i8 / 2;
-        int i10 = i2 - i3;
-        return i4 + i9 + (i8 % 2) + ((i10 == 0 || i6 == 0) ? 0 : (((i7 * 2) * (i - i3)) / i6) / i10);
-    }
 
         if (context.getResources().getBoolean(
             com.android.internal.R.bool.config_supportsScreenOffInDisplayFingerprint)){
