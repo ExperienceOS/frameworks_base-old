@@ -53,7 +53,6 @@ public class BatteryStatus {
     public final int health;
     public final int maxChargingWattage;
     public final boolean present;
-    public final float temperature;
     public final boolean oemFastChargeStatus;
 
     public BatteryStatus(int status, int level, int plugged, int health,
