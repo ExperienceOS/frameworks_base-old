@@ -29,8 +29,6 @@ public class PixelPropsUtils {
     private static final boolean DEBUG = false;
 
     private static final Map<String, Object> propsToChange;
-    private static final Map<String, Object> propsToChangePixelXL;
-    private static final Map<String, Object> propsToChangePixel3XL;
 
     private static final String[] packagesToChange = {
             "com.android.vending",
@@ -57,14 +55,6 @@ public class PixelPropsUtils {
             "com.google.android.apps.nexuslauncher"
     };
 
-    private static final String[] packagesToChangePixelXL = {
-            "com.google.android.apps.photos"
-    };
-
-    private static final String[] packagesToChangePixel3XL = {
-            "com.google.android.googlequicksearchbox"
-    };
-
     static {
         propsToChange = new HashMap<>();
         propsToChange.put("BRAND", "google");
@@ -84,26 +74,6 @@ public class PixelPropsUtils {
                 Log.d(TAG, "Defining props for: " + packageName);
             }
             for (Map.Entry<String, Object> prop : propsToChange.entrySet()) {
-                String key = prop.getKey();
-                Object value = prop.getValue();
-                setPropValue(key, value);
-            }
-        }
-        if (Arrays.asList(packagesToChangePixelXL).contains(packageName)){
-            if (DEBUG){
-                Log.d(TAG, "Defining props for: " + packageName);
-            }
-            for (Map.Entry<String, Object> prop : propsToChangePixelXL.entrySet()) {
-                String key = prop.getKey();
-                Object value = prop.getValue();
-                setPropValue(key, value);
-            }
-        }
-        if (Arrays.asList(packagesToChangePixel3XL).contains(packageName)){
-            if (DEBUG){
-                Log.d(TAG, "Defining props for: " + packageName);
-            }
-            for (Map.Entry<String, Object> prop : propsToChangePixel3XL.entrySet()) {
                 String key = prop.getKey();
                 Object value = prop.getValue();
                 setPropValue(key, value);
